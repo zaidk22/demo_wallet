@@ -31,9 +31,7 @@ class HomePage extends StatelessWidget {
             label: const Text("Add transcation")),
       ),
       body: SingleChildScrollView(
-        
         child: Column(
-        
           children: [
             const SizedBox(
               height: 20,
@@ -64,7 +62,7 @@ class HomePage extends StatelessWidget {
                   child: CustomButton(
                     icon: Icons.attach_money,
                     label: "To Be Paid",
-                   amount: '\u{20B9} ${getToBePaidAmount().toStringAsFixed(2)}',
+                    amount: '\u{20B9} 0',
                     onPressed: () {},
                   ),
                 ),
@@ -72,8 +70,7 @@ class HomePage extends StatelessWidget {
                   child: CustomButton(
                     icon: Icons.attach_money,
                     label: "To Be Recieved",
-                    amount: '\u{20B9} ${getToBeReceivedAmount().toStringAsFixed(2)}',
-                    
+                    amount: '\u{20B9} 0',
                     onPressed: () {},
                   ),
                 )
@@ -86,14 +83,14 @@ class HomePage extends StatelessWidget {
               future: getTransactions(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const CircularProgressIndicator(); 
+                  return const CircularProgressIndicator();
                 } else if (snapshot.hasError) {
                   return Text('Error: ${snapshot.error}');
                 } else if (snapshot.data?.length == 0) {
                   return Center(child: Text("No transactions added"));
                 } else {
                   final transactions = snapshot.data ?? [];
-      
+
                   return ListView.builder(
                     shrinkWrap: true,
                     reverse: true,
@@ -102,21 +99,21 @@ class HomePage extends StatelessWidget {
                     itemBuilder: (context, index) {
                       final transaction = transactions[index];
                       return ListTile(
-        title: Text(transaction.name),
-        subtitle: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-        Text("Amount: \u{20B9} ${transaction.amount}"),
-        Text("Date: ${formatDate(transaction.date)}"), 
-             Text("Type: ${transaction.type}"),
-          ],
-        ),
-        leading: CircleAvatar(
-          radius: 30,
-          backgroundImage: FileImage(File(transaction.imagePath)),
-        ),
-      );
-      
+                        title: Text(transaction.name),
+                        subtitle: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text("Amount: \u{20B9} ${transaction.amount}"),
+                            Text("Date: ${formatDate(transaction.date)}"),
+                            Text("Type: ${transaction.type}"),
+                          ],
+                        ),
+                        leading: CircleAvatar(
+                          radius: 30,
+                          backgroundImage:
+                              FileImage(File(transaction.imagePath)),
+                        ),
+                      );
                     },
                   );
                 }
@@ -129,38 +126,7 @@ class HomePage extends StatelessWidget {
   }
 
   Future<List<Transaction>> getTransactions() async {
-    final isOpen = Hive.isBoxOpen("transactions");
-    print(isOpen);
-
     final transactionsBox = await Hive.openBox<Transaction>("transactions");
     return transactionsBox.values.toList();
   }
-    double getToBePaidAmount() {
-    final transactionsBox = Hive.box<Transaction>("transactions");
-    final transactions = transactionsBox.values.toList();
-    double toBePaidAmount = 0.0;
-
-    for (final transaction in transactions) {
-      if (transaction.type == "Paid") {
-        toBePaidAmount += double.tryParse(transaction.amount) ?? 0.0;
-      }
-    }
-
-    return toBePaidAmount;
-  }
-
-  double getToBeReceivedAmount() {
-    final transactionsBox = Hive.box<Transaction>("transactions");
-    final transactions = transactionsBox.values.toList();
-    double toBeReceivedAmount = 0.0;
-
-    for (final transaction in transactions) {
-      if (transaction.type == "Received") {
-        toBeReceivedAmount += double.tryParse(transaction.amount) ?? 0.0;
-      }
-    }
-
-    return toBeReceivedAmount;
-  }
 }
-

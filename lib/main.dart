@@ -13,7 +13,7 @@ void main() async {
     Hive.initFlutter();
     Hive.init(dir.path);
     Hive.registerAdapter(TransactionAdapter());
-
+   //await Hive.openBox("transactions");
   } catch (e) {
     if (kDebugMode) {
       print('Error initializing Hive: $e');
@@ -25,7 +25,7 @@ void main() async {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
